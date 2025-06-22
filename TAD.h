@@ -28,7 +28,8 @@ void Read(Tarefas *Inicio, TarefasC *InicioC)
 
     if(!feof(Ptr))
     {
-        pos = fseek(Ptr,,Aux);
+        pos = ftell(Ptr);
+        fread(&AuxT,sizeof(Tarefa),1,Ptr);
         
         do
         {
@@ -79,9 +80,38 @@ void Read(Tarefas *Inicio, TarefasC *InicioC)
 
                 if(InicioC -> prox == NULL)
                     InicioC -> prox = AuxC;
+                else if(InicioC -> prox -> prioridade < AuxT.prioridade)
+                {
+                    AuxC -> prox = InicioC -> prox;
+                    InicioC -> prox -> ant = Aux;
+                    InicioC -> prox = Aux;
+                }
+                else
+                {
+                    AuxC -> prox = InicioC -> prox;
+
+                    while(AuxC -> prox -> prox != NULL && AuxC -> prox -> prioridade >= AuxT.prioridade)
+                        AuxC -> prox = AuxC -> prox -> prox;
+
+                    if(AuxC -> prox -> prioridade < AuxT.prioridade)
+                    {
+                        AuxC -> ant = AuxC -> prox -> ant;
+                        AuxC -> prox -> ant = AuxC -> prox -> ant -> prox = AuxC;
+                    }
+                    else
+                    {
+                        AuxC -> prox -> prox = AuxC;
+                        AuxC -> ant = AuxC -> prox;
+                        AuxC -> prox = NULL;
+                    }
+                }
             }
 
-            fread(Ptr,,Aux);
+            pos = ftell(Ptr);
+            fread(&AuxT,sizeof(Tarefa),1,Ptr);
+
         }while(!feof(Ptr));
     }
+
+    fclose(Ptr);
 }
