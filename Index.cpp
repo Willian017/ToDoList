@@ -5,7 +5,10 @@
 #include "TAD.h"
 #include "Menu.h"
 
-
 int main()
 {
+	Tarefas *InicioT = new Tarefas;
+	TarefasC *InicioTC = new TarefasC;
+	
+	Read(InicioT, InicioTC);
 }

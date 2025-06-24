@@ -24,7 +24,7 @@ void Read(Tarefas *Inicio, TarefasC *InicioC)
     Inicio -> prox = Inicio -> ant = NULL;
     InicioC -> prox = InicioC -> ant = NULL;
 
-    FILE *Ptr = fopen("rb+","Tarefas.txt");
+    FILE *Ptr = fopen("Tarefas.dat","rb");
 
     if(!feof(Ptr))
     {
@@ -83,8 +83,8 @@ void Read(Tarefas *Inicio, TarefasC *InicioC)
                 else if(InicioC -> prox -> prioridade < AuxT.prioridade)
                 {
                     AuxC -> prox = InicioC -> prox;
-                    InicioC -> prox -> ant = Aux;
-                    InicioC -> prox = Aux;
+                    InicioC -> prox -> ant = AuxC;
+                    InicioC -> prox = AuxC;
                 }
                 else
                 {
