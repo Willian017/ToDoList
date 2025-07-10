@@ -10,5 +10,6 @@ int main()
 	Tarefas *InicioT = new Tarefas;
 	TarefasC *InicioTC = new TarefasC;
 	
-	Read(InicioT, InicioTC);
+	read(InicioT, InicioTC);
+	store(InicioT, InicioTC);
 }
