@@ -33,7 +33,7 @@ void read(Tarefas *Inicio, TarefasC *InicioC)
         
         do
         {
-            if(AuxT.status == 0)
+            if(AuxT.status == 1)
             {
                 Tarefas *Aux = new Tarefas;
 
@@ -111,6 +111,7 @@ void read(Tarefas *Inicio, TarefasC *InicioC)
 
         }while(!feof(Ptr));
     }
+
     fclose(Ptr);
 }
 
@@ -185,5 +186,45 @@ void store(Tarefas *Inicio, TarefasC *InicioC)
     printf("Tarefa Cadastrada com sucesso", AuxT.data);
 
     getch();
+}
+
+void show(Tarefas *Inicio, TarefasC *InicioC)
+{
+    FILE *Ptr = fopen("Tarefas.dat","ab+");
     
+    if(Ptr != NULL)
+    {
+        clrscr();
+        Tarefa AuxT;
+        printf("Tarefas Ativas: \n");
+        if(Inicio -> prox != NULL)
+        {
+            Tarefas *Aux = Inicio;
+            do
+            {
+                Aux = Aux->prox;
+                fseek(Ptr,Aux->local,SEEK_SET);
+                fread(&AuxT,sizeof(Tarefa),1,Ptr);
+                printf("%s %s %d\n", AuxT.data, AuxT.desc, AuxT.prioridade);
+            } while(Aux->prox!=NULL);
+        }
+
+        delete Aux;
+        printf("\nTarefas Finalizadas: \n");
+
+        if(Inicio -> prox != NULL)
+        {
+            TarefasC *Aux = Inicio;
+            do
+            {
+                Aux = Aux->prox;
+                fseek(Ptr,Aux->local,SEEK_SET);
+                fread(&AuxT,sizeof(Tarefa),1,Ptr);
+                printf("%s %s %d\n", AuxT.data, AuxT.desc, AuxT.prioridade);
+            } while(Aux->prox!=NULL);
+        }
+    }
+
+    getch();
+    fclose(Ptr);
 }

@@ -11,5 +11,6 @@ int main()
 	TarefasC *InicioTC = new TarefasC;
 	
 	read(InicioT, InicioTC);
-	store(InicioT, InicioTC);
+	show(InicioT, InicioTC);
+	//store(InicioT, InicioTC);
 }
