@@ -7,10 +7,9 @@
 
 int main()
 {
-	Tarefas *InicioT = new Tarefas;
-	TarefasC *InicioTC = new TarefasC;
+	Tarefas *PTarefas = new Tarefas;
 	
-	read(InicioT, InicioTC);
-	show(InicioT, InicioTC);
-	//store(InicioT, InicioTC);
+	read(PTarefas);
+	show(PTarefas);
+	//store(PTarefas);
 }

@@ -6,23 +6,16 @@ struct Tarefa
 
 struct Tarefas
 {
-    int local, prioridade;
+    int local, prioridade, status;
     Tarefas *prox, *ant;
 };
 
-struct TarefasC
-{
-    int local, prioridade;
-    TarefasC *prox, *ant;
-};
-
-void read(Tarefas *Inicio, TarefasC *InicioC)
+void read(Tarefas *Inicio)
 {
     int pos;
     Tarefa AuxT;
 
     Inicio -> prox = Inicio -> ant = NULL;
-    InicioC -> prox = InicioC -> ant = NULL;
 
     FILE *Ptr = fopen("Tarefas.dat","rb");
 
@@ -33,89 +26,50 @@ void read(Tarefas *Inicio, TarefasC *InicioC)
         
         do
         {
-            if(AuxT.status == 1)
-            {
-                Tarefas *Aux = new Tarefas;
+            Tarefas *Aux = new Tarefas;
 
-                Aux -> local = pos;
-                Aux -> prioridade = AuxT.prioridade;
-                Aux -> ant = Aux -> prox = NULL;
+            Aux -> local = pos;
+            Aux -> prioridade = AuxT.prioridade;
+            Aux -> status = AuxT.status;
+            Aux -> ant = Aux -> prox = NULL;
  
-                if(Inicio -> prox == NULL)
-                    Inicio -> prox = Aux;
-                else if(Inicio -> prox -> prioridade > AuxT.prioridade)
-                {
-                    Aux -> prox = Inicio -> prox;
-                    Inicio -> prox -> ant = Aux;
-                    Inicio -> prox = Aux;
-                }
-                else
-                {
-                    Aux -> prox = Inicio -> prox;
-
-                    while(Aux -> prox -> prox != NULL && Aux -> prox -> prioridade <= AuxT.prioridade)
-                        Aux -> prox = Aux -> prox -> prox;
-
-                    if(Aux -> prox -> prioridade > AuxT.prioridade)
-                    {
-                        Aux -> ant = Aux -> prox -> ant;
-                        Aux -> prox -> ant = Aux -> prox -> ant -> prox = Aux;
-                    }
-                    else
-                    {
-                        Aux -> prox -> prox = Aux;
-                        Aux -> ant = Aux -> prox;
-                        Aux -> prox = NULL;
-                    }
-                }
+            if(Inicio -> prox == NULL)
+                Inicio -> prox = Aux;
+            else if(Inicio -> prox -> prioridade > AuxT.prioridade)
+            {
+                Aux -> prox = Inicio -> prox;
+                Inicio -> prox -> ant = Aux;
+                Inicio -> prox = Aux;
             }
             else
             {
-                TarefasC *AuxC = new TarefasC;
+                Aux -> prox = Inicio -> prox;
 
-                AuxC -> local = pos;
-                AuxC -> prioridade = AuxT.prioridade;
-                AuxC -> ant = AuxC -> prox = NULL;
+                while(Aux -> prox -> prox != NULL && Aux -> prox -> prioridade <= AuxT.prioridade)
+                    Aux -> prox = Aux -> prox -> prox;
 
-                if(InicioC -> prox == NULL)
-                    InicioC -> prox = AuxC;
-                else if(InicioC -> prox -> prioridade > AuxT.prioridade)
+                if(Aux -> prox -> prioridade > AuxT.prioridade)
                 {
-                    AuxC -> prox = InicioC -> prox;
-                    InicioC -> prox -> ant = AuxC;
-                    InicioC -> prox = AuxC;
+                    Aux -> ant = Aux -> prox -> ant;
+                    Aux -> prox -> ant = Aux -> prox -> ant -> prox = Aux;
                 }
                 else
                 {
-                    AuxC -> prox = InicioC -> prox;
-
-                    while(AuxC -> prox -> prox != NULL && AuxC -> prox -> prioridade <= AuxT.prioridade)
-                        AuxC -> prox = AuxC -> prox -> prox;
-
-                    if(AuxC -> prox -> prioridade > AuxT.prioridade)
-                    {
-                        AuxC -> ant = AuxC -> prox -> ant;
-                        AuxC -> prox -> ant = AuxC -> prox -> ant -> prox = AuxC;
-                    }
-                    else
-                    {
-                        AuxC -> prox -> prox = AuxC;
-                        AuxC -> ant = AuxC -> prox;
-                        AuxC -> prox = NULL;
-                    }
+                    Aux -> prox -> prox = Aux;
+                    Aux -> ant = Aux -> prox;
+                    Aux -> prox = NULL;
                 }
             }
 
             pos = ftell(Ptr);
             fread(&AuxT,sizeof(Tarefa),1,Ptr);
-
         }while(!feof(Ptr));
     }
 
     fclose(Ptr);
 }
 
-void store(Tarefas *Inicio, TarefasC *InicioC)
+void store(Tarefas *Inicio)
 {
     int num;
     char Aux[30];
@@ -188,40 +142,46 @@ void store(Tarefas *Inicio, TarefasC *InicioC)
     getch();
 }
 
-void show(Tarefas *Inicio, TarefasC *InicioC)
+void show(Tarefas *Inicio)
 {
     FILE *Ptr = fopen("Tarefas.dat","ab+");
     
     if(Ptr != NULL)
     {
         clrscr();
-        Tarefa AuxT;
         printf("Tarefas Ativas: \n");
+
         if(Inicio -> prox != NULL)
         {
+            Tarefa AuxT;
             Tarefas *Aux = Inicio;
             do
             {
                 Aux = Aux->prox;
-                fseek(Ptr,Aux->local,SEEK_SET);
-                fread(&AuxT,sizeof(Tarefa),1,Ptr);
-                printf("%s %s %d\n", AuxT.data, AuxT.desc, AuxT.prioridade);
+                if(Aux->status == 1)
+                {
+                    fseek(Ptr,Aux->local,SEEK_SET);
+                    fread(&AuxT,sizeof(Tarefa),1,Ptr);
+                    printf("%s %s %d\n", AuxT.data, AuxT.desc, AuxT.prioridade);
+                }
+                
             } while(Aux->prox!=NULL);
-        }
 
-        delete Aux;
-        printf("\nTarefas Finalizadas: \n");
-
-        if(Inicio -> prox != NULL)
-        {
-            TarefasC *Aux = Inicio;
+            Aux = Inicio;
+            printf("\nTarefas Finalizadas: \n");
             do
             {
                 Aux = Aux->prox;
-                fseek(Ptr,Aux->local,SEEK_SET);
-                fread(&AuxT,sizeof(Tarefa),1,Ptr);
-                printf("%s %s %d\n", AuxT.data, AuxT.desc, AuxT.prioridade);
+                if(Aux->status == 0)
+                {
+                    fseek(Ptr,Aux->local,SEEK_SET);
+                    fread(&AuxT,sizeof(Tarefa),1,Ptr);
+                    printf("%s %s %d\n", AuxT.data, AuxT.desc, AuxT.prioridade);
+                }
+                
             } while(Aux->prox!=NULL);
+
+            delete Aux;
         }
     }
 
