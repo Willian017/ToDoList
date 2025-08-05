@@ -10,6 +10,7 @@ int main()
 	Tarefas *PTarefas = new Tarefas;
 	
 	read(PTarefas);
-	show(PTarefas);
+	destroy(PTarefas);
+	//show(PTarefas);
 	//store(PTarefas);
 }

@@ -10,6 +10,12 @@ struct Tarefas
     Tarefas *prox, *ant;
 };
 
+struct PosTarefa
+{
+    int local, y;
+    PosTarefa *prox, *ant;
+};
+
 void read(Tarefas *Inicio)
 {
     int pos;
@@ -145,16 +151,17 @@ void store(Tarefas *Inicio)
 void show(Tarefas *Inicio)
 {
     FILE *Ptr = fopen("Tarefas.dat","ab+");
+    clrscr();
+
     
     if(Ptr != NULL)
     {
-        clrscr();
-        printf("Tarefas Ativas: \n");
-
         if(Inicio -> prox != NULL)
         {
             Tarefa AuxT;
             Tarefas *Aux = Inicio;
+            printf("Tarefas Ativas: \n");
+
             do
             {
                 Aux = Aux->prox;
@@ -184,6 +191,123 @@ void show(Tarefas *Inicio)
             delete Aux;
         }
     }
+    else
+    {
+        printf("Nao existe nenhuma tarefa cadastrada");
+    }
+
+    getch();
+    fclose(Ptr);
+}
+
+void destroy(Tarefas *Inicio)
+{
+    FILE *Ptr = fopen("Tarefas.dat","ab+");
+    clrscr();
+
+    if(Ptr != NULL)
+    {
+        if(Inicio -> prox != NULL)
+        {
+            Tarefa AuxT;
+            Tarefas *Aux = Inicio;
+            PosTarefa *Pos = new PosTarefa;
+            int y=1;
+
+            Pos -> prox = Pos -> ant = NULL;
+
+            gotoxy(1,y++);
+            printf("Tarefas Ativas: ");
+            do
+            {
+                Aux = Aux->prox;
+                if(Aux->status == 1)
+                {
+                    fseek(Ptr,Aux->local,SEEK_SET);
+                    fread(&AuxT,sizeof(Tarefa),1,Ptr);
+                    gotoxy(1,y++);
+                    printf("%s %s %d", AuxT.data, AuxT.desc, AuxT.prioridade);
+
+                    PosTarefa *AuxPos = new PosTarefa;
+                    AuxPos->y=y;
+                    AuxPos->local=Aux->local;
+
+                    if(Pos->prox == NULL)
+                        Pos->prox = Pos->ant = AuxPos;
+                    else
+                    {
+                        AuxPos->ant = Pos->ant;
+                        AuxPos->prox = Pos;
+                        Pos->ant = Pos->ant->prox = AuxPos; 
+                    }
+                }
+            } while(Aux->prox!=NULL);
+
+            y++;
+            Aux = Inicio;
+
+            gotoxy(1,y++);
+            printf("Tarefas Finalizadas: ");
+
+            do
+            {
+                Aux = Aux->prox;
+                if(Aux->status == 0)
+                {
+                    fseek(Ptr,Aux->local,SEEK_SET);
+                    fread(&AuxT,sizeof(Tarefa),1,Ptr);
+                    gotoxy(1,y++);
+                    printf("%s %s %d", AuxT.data, AuxT.desc, AuxT.prioridade);
+
+                    PosTarefa *AuxPos = new PosTarefa;
+                    AuxPos->y=y;
+                    AuxPos->local=Aux->local;
+
+                    if(Pos->prox == NULL)
+                        Pos->prox = Pos->ant = AuxPos;
+                    else
+                    {
+                        AuxPos->ant = Pos->ant;
+                        AuxPos->prox = Pos;
+                        Pos->ant = Pos->ant->prox = AuxPos; 
+                    }
+                }
+            } while(Aux->prox!=NULL);
+
+            char op;
+
+            do
+            {
+                y = Pos->y;
+                printf("%d",y);
+                getch();
+
+
+                gotoxy(1,y);
+                printf("%s %s %d", AuxT.data, AuxT.desc, AuxT.prioridade);
+
+                fseek(Ptr,Pos->local,SEEK_SET);
+                fread(&AuxT,sizeof(Tarefa),1,Ptr);
+                gotoxy(1,y);
+                printf("-> %s %s %d", AuxT.data, AuxT.desc, AuxT.prioridade);
+
+                op = getch();
+
+                if(op == 72)
+                    Pos = Pos->prox;
+                else if(op == 80)
+                    Pos = Pos->ant;
+
+            } while(op != 27 && op != 13);
+
+            if(op == 13)
+                getch();
+
+            delete Aux;
+        }
+    }
+    else
+        printf("Nao existe nenhuma tarefa cadastrada");
 
     getch();
     fclose(Ptr);
